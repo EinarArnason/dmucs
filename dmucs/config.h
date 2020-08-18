@@ -1,5 +1,5 @@
 /* config.h.  Generated from config.h.in by configure.  */
-/* config.h.in.  Generated from ./configure.ac by autoheader.  */
+/* config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #define HAVE_ARPA_INET_H 1
@@ -14,7 +14,7 @@
 #define HAVE_GETHOSTBYADDR 1
 
 /* Define to 1 if you have the `gethostbyaddr_r' function. */
-/* #undef HAVE_GETHOSTBYADDR_R */
+#define HAVE_GETHOSTBYADDR_R 1
 
 /* Define if gethostbyaddr_r() exists and takes 5 arguments */
 /* #undef HAVE_GETHOSTBYADDR_R_5_ARGS */
@@ -23,7 +23,7 @@
 /* #undef HAVE_GETHOSTBYADDR_R_7_ARGS */
 
 /* Define if gethostbyaddr_r() exists and takes 8 arguments */
-/* #undef HAVE_GETHOSTBYADDR_R_8_ARGS */
+#define HAVE_GETHOSTBYADDR_R_8_ARGS 1
 
 /* Define to 1 if you have the `gethostbyname' function. */
 #define HAVE_GETHOSTBYNAME 1
@@ -38,7 +38,7 @@
 #define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the `nsl' library (-lnsl). */
-/* #undef HAVE_LIBNSL */
+#define HAVE_LIBNSL 1
 
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #define HAVE_LIBPTHREAD 1
@@ -102,10 +102,6 @@
 
 /* Define to 1 if the system has the type `_Bool'. */
 #define HAVE__BOOL 1
-
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
-#define LT_OBJDIR ".libs/"
 
 /* Name of package */
 #define PACKAGE "dmucs"

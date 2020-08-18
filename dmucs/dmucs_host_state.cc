@@ -19,208 +19,145 @@
  */
 
 #include "dmucs_host_state.h"
+
 #include "dmucs_db.h"
-
-
 
 DmucsHostStateAvail *DmucsHostStateAvail::instance_ = NULL;
 
-
-DmucsHostStateAvail *
-DmucsHostStateAvail::getInstance()
-{
-    if (instance_ == NULL) {
-	instance_ = new DmucsHostStateAvail();
-    }
-    return instance_;
+DmucsHostStateAvail *DmucsHostStateAvail::getInstance() {
+  if (instance_ == NULL) {
+    instance_ = new DmucsHostStateAvail();
+  }
+  return instance_;
 }
 
-
-void
-DmucsHostStateAvail::unavail(DmucsHost *host)
-{
-    /* Remove the CPUs from the cpus database. */
-    DmucsDb::getInstance()->delCpusFromTier(host, host->getTier(),
-					    host->getIpAddrInt());
-    /* Move the host to the overloaded state: remove from availHosts_ and
-       add to overloadedHosts_. */
-    removeFromDb(host);
-    DmucsHostState::changeState(host, DmucsHostStateUnavail::getInstance());
+void DmucsHostStateAvail::unavail(DmucsHost *host) {
+  /* Remove the CPUs from the cpus database. */
+  DmucsDb::getInstance()->delCpusFromTier(host, host->getTier(),
+                                          host->getIpAddrInt());
+  /* Move the host to the overloaded state: remove from availHosts_ and
+     add to overloadedHosts_. */
+  removeFromDb(host);
+  DmucsHostState::changeState(host, DmucsHostStateUnavail::getInstance());
 }
 
-
-void
-DmucsHostStateAvail::silent(DmucsHost *host)
-{
-    /* Remove the CPUs from the cpus database. */
-    DmucsDb::getInstance()->delCpusFromTier(host, host->getTier(),
-					    host->getIpAddrInt());
-    /* Move the host to the overloaded state: remove from availHosts_ and
-       add to overloadedHosts_. */
-    removeFromDb(host);
-    DmucsHostState::changeState(host, DmucsHostStateSilent::getInstance());
+void DmucsHostStateAvail::silent(DmucsHost *host) {
+  /* Remove the CPUs from the cpus database. */
+  DmucsDb::getInstance()->delCpusFromTier(host, host->getTier(),
+                                          host->getIpAddrInt());
+  /* Move the host to the overloaded state: remove from availHosts_ and
+     add to overloadedHosts_. */
+  removeFromDb(host);
+  DmucsHostState::changeState(host, DmucsHostStateSilent::getInstance());
 }
 
-
-void
-DmucsHostStateAvail::overloaded(DmucsHost *host)
-{
-    /* Remove the CPUs from the cpus database. */
-    DmucsDb::getInstance()->delCpusFromTier(host, host->getTier(),
-					    host->getIpAddrInt());
-    /* Move the host to the overloaded state: remove from availHosts_ and
-       add to overloadedHosts_. */
-    removeFromDb(host);
-    DmucsHostState::changeState(host, DmucsHostStateOverloaded::getInstance());
+void DmucsHostStateAvail::overloaded(DmucsHost *host) {
+  /* Remove the CPUs from the cpus database. */
+  DmucsDb::getInstance()->delCpusFromTier(host, host->getTier(),
+                                          host->getIpAddrInt());
+  /* Move the host to the overloaded state: remove from availHosts_ and
+     add to overloadedHosts_. */
+  removeFromDb(host);
+  DmucsHostState::changeState(host, DmucsHostStateOverloaded::getInstance());
 }
 
-
-void
-DmucsHostStateAvail::removeFromDb(DmucsHost *host)
-{
-    DmucsDb::getInstance()->delFromAvailDb(host);
+void DmucsHostStateAvail::removeFromDb(DmucsHost *host) {
+  DmucsDb::getInstance()->delFromAvailDb(host);
 }
 
-void
-DmucsHostStateAvail::addToDb(DmucsHost *host)
-{
-    DmucsDb::getInstance()->addToAvailDb(host);
+void DmucsHostStateAvail::addToDb(DmucsHost *host) {
+  DmucsDb::getInstance()->addToAvailDb(host);
 }
-
 
 /* ====================================================================== */
 
 DmucsHostStateUnavail *DmucsHostStateUnavail::instance_ = NULL;
 
-DmucsHostStateUnavail *
-DmucsHostStateUnavail::getInstance()
-{
-    if (instance_ == NULL) {
-	instance_ = new DmucsHostStateUnavail();
-    }
-    return instance_;
+DmucsHostStateUnavail *DmucsHostStateUnavail::getInstance() {
+  if (instance_ == NULL) {
+    instance_ = new DmucsHostStateUnavail();
+  }
+  return instance_;
 }
 
-void
-DmucsHostStateUnavail::avail(DmucsHost *host)
-{
-    removeFromDb(host);
+void DmucsHostStateUnavail::avail(DmucsHost *host) {
+  removeFromDb(host);
 
-    int tier = host->getTier();
-    if (tier == 0) {
-	DmucsHostState::changeState(host,
-				    DmucsHostStateOverloaded::getInstance());
-    } else {
-	DmucsHostState::changeState(host, DmucsHostStateAvail::getInstance());
-    }
+  int tier = host->getTier();
+  if (tier == 0) {
+    DmucsHostState::changeState(host, DmucsHostStateOverloaded::getInstance());
+  } else {
+    DmucsHostState::changeState(host, DmucsHostStateAvail::getInstance());
+  }
 }
 
-
-void
-DmucsHostStateUnavail::addToDb(DmucsHost *host)
-{
-    DmucsDb::getInstance()->addToUnavailDb(host);
+void DmucsHostStateUnavail::addToDb(DmucsHost *host) {
+  DmucsDb::getInstance()->addToUnavailDb(host);
 }
 
-
-void
-DmucsHostStateUnavail::removeFromDb(DmucsHost *host)
-{
-    DmucsDb::getInstance()->delFromUnavailDb(host);
+void DmucsHostStateUnavail::removeFromDb(DmucsHost *host) {
+  DmucsDb::getInstance()->delFromUnavailDb(host);
 }
-
 
 /* ====================================================================== */
 
 DmucsHostStateSilent *DmucsHostStateSilent::instance_ = NULL;
 
-DmucsHostStateSilent *
-DmucsHostStateSilent::getInstance()
-{
-    if (instance_ == NULL) {
-	instance_ = new DmucsHostStateSilent();
-    }
-    return instance_;
+DmucsHostStateSilent *DmucsHostStateSilent::getInstance() {
+  if (instance_ == NULL) {
+    instance_ = new DmucsHostStateSilent();
+  }
+  return instance_;
 }
 
-void
-DmucsHostStateSilent::avail(DmucsHost *host)
-{
-    removeFromDb(host);
-    DmucsHostState::changeState(host, DmucsHostStateAvail::getInstance());
+void DmucsHostStateSilent::avail(DmucsHost *host) {
+  removeFromDb(host);
+  DmucsHostState::changeState(host, DmucsHostStateAvail::getInstance());
 }
 
-
-void
-DmucsHostStateSilent::unavail(DmucsHost *host)
-{
-    removeFromDb(host);
-    DmucsHostState::changeState(host, DmucsHostStateUnavail::getInstance());
+void DmucsHostStateSilent::unavail(DmucsHost *host) {
+  removeFromDb(host);
+  DmucsHostState::changeState(host, DmucsHostStateUnavail::getInstance());
 }
 
-
-void
-DmucsHostStateSilent::addToDb(DmucsHost *host)
-{
-    DmucsDb::getInstance()->addToSilentDb(host);
+void DmucsHostStateSilent::addToDb(DmucsHost *host) {
+  DmucsDb::getInstance()->addToSilentDb(host);
 }
 
-
-void
-DmucsHostStateSilent::removeFromDb(DmucsHost *host)
-{
-    DmucsDb::getInstance()->delFromSilentDb(host);
+void DmucsHostStateSilent::removeFromDb(DmucsHost *host) {
+  DmucsDb::getInstance()->delFromSilentDb(host);
 }
-
-
 
 /* ====================================================================== */
 
-
 DmucsHostStateOverloaded *DmucsHostStateOverloaded::instance_ = NULL;
 
-DmucsHostStateOverloaded *
-DmucsHostStateOverloaded::getInstance()
-{
-    if (instance_ == NULL) {
-	instance_ = new DmucsHostStateOverloaded();
-    }
-    return instance_;
+DmucsHostStateOverloaded *DmucsHostStateOverloaded::getInstance() {
+  if (instance_ == NULL) {
+    instance_ = new DmucsHostStateOverloaded();
+  }
+  return instance_;
 }
 
-void
-DmucsHostStateOverloaded::avail(DmucsHost *host)
-{
-    removeFromDb(host);
-    DmucsHostState::changeState(host, DmucsHostStateAvail::getInstance());
+void DmucsHostStateOverloaded::avail(DmucsHost *host) {
+  removeFromDb(host);
+  DmucsHostState::changeState(host, DmucsHostStateAvail::getInstance());
 }
 
-
-void
-DmucsHostStateOverloaded::unavail(DmucsHost *host)
-{
-    removeFromDb(host);
-    DmucsHostState::changeState(host, DmucsHostStateUnavail::getInstance());
+void DmucsHostStateOverloaded::unavail(DmucsHost *host) {
+  removeFromDb(host);
+  DmucsHostState::changeState(host, DmucsHostStateUnavail::getInstance());
 }
 
-
-void
-DmucsHostStateOverloaded::silent(DmucsHost *host)
-{
-    removeFromDb(host);
-    DmucsHostState::changeState(host, DmucsHostStateSilent::getInstance());
+void DmucsHostStateOverloaded::silent(DmucsHost *host) {
+  removeFromDb(host);
+  DmucsHostState::changeState(host, DmucsHostStateSilent::getInstance());
 }
 
-
-void
-DmucsHostStateOverloaded::addToDb(DmucsHost *host)
-{
-    DmucsDb::getInstance()->addToOverloadedDb(host);
+void DmucsHostStateOverloaded::addToDb(DmucsHost *host) {
+  DmucsDb::getInstance()->addToOverloadedDb(host);
 }
 
-
-void
-DmucsHostStateOverloaded::removeFromDb(DmucsHost *host)
-{
-    DmucsDb::getInstance()->delFromOverloadedDb(host);
+void DmucsHostStateOverloaded::removeFromDb(DmucsHost *host) {
+  DmucsDb::getInstance()->delFromOverloadedDb(host);
 }

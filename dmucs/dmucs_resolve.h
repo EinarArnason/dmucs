@@ -24,12 +24,13 @@
 #include <string>
 
 /**
- * Resolves the host name by using the gethostbyname versions that was specified 
+ * Resolves the host name by using the gethostbyname versions that was specified
  * in the configuration script
  * \param resolvedName the resolved name will be put in this variable
  * \param ipAddr ip address to resolve
  * \return a referance to resolvedName
  */
-const std::string& getHostName(std::string &resolvedName, const struct in_addr &ipAddr);
+const std::string &getHostName(std::string &resolvedName,
+                               const struct in_addr &ipAddr);
 
 #endif /*DMUCS_RESOLVE_H_*/

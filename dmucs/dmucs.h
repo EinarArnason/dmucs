@@ -1,7 +1,6 @@
 #ifndef _DMUCS_MAIN_H_
 #define _DMUCS_MAIN_H_
 
-
 /*
  * dmucs.h: main header file.
  *
@@ -26,7 +25,8 @@
 
 extern bool debugMode;
 
-#define DMUCS_DEBUG(x) if (debugMode) fprintf x
+#define DMUCS_DEBUG(x) \
+  if (debugMode) fprintf x
 #define strequ(x, y) (strncmp(x, y, strlen(x)) == 0)
 
 /*
@@ -39,7 +39,7 @@ extern bool debugMode;
  *       named mulberry.
  */
 #ifndef SERVER_MACH_NAME
-#define SERVER_MACH_NAME	"localhost"
+#define SERVER_MACH_NAME "localhost"
 #endif
 
 #ifndef SERVER_PORT_NUM
@@ -50,6 +50,5 @@ extern bool debugMode;
 
 void addFd(Socket *sock);
 void removeFd(Socket *sock);
-
 
 #endif

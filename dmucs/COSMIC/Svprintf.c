@@ -12,9 +12,10 @@
  *               of this software.
  * Date:         Aug 22, 2005
  */
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
 #include "sockets.h"
 
 /* --------------------------------------------------------------------- */
@@ -30,40 +31,36 @@
  *   into PM_BIGBUF bytes!  It then squirts the resulting string through
  *   a call to Swrite.
  */
+char *fmt;
+void *args;
+
 #ifdef __PROTOTYPE__
-int Svprintf(
-  Socket *skt,
-  char   *fmt,
-  ...)
+int Svprintf(Socket *skt, char *fmt, ...)
 #else
-int Svprintf(skt,fmt,args)
-Socket *skt;
-char   *fmt;
-void   *args;
+int Svprintf(skt, fmt, args) Socket *skt;
 #endif
 {
-int         ret;
-static char buf[PM_BIGBUF];
+  int ret;
+  static char buf[PM_BIGBUF];
 
-
-/* sanity check */
-if(!skt) {
-	return 0;
-	}
+  /* sanity check */
+  if (!skt) {
+    return 0;
+  }
 
 #ifdef AS400
-ret= vsprintf(buf,fmt,__va_list args);
+  ret = vsprintf(buf, fmt, __va_list args);
 #elif __APPLE__
-	va_list va;
-	va_start(va, fmt);
-	ret = vsprintf(buf, fmt, va);
-	va_end(va);
+  va_list va;
+  va_start(va, fmt);
+  ret = vsprintf(buf, fmt, va);
+  va_end(va);
 #else
-ret= vsprintf(buf,fmt,(char *) args);
+  ret = vsprintf(buf, fmt, (char *)args);
 #endif
-Swrite(skt,buf,(int)strlen(buf)+1);	/* send the null byte, too */
+  Swrite(skt, buf, (int)strlen(buf) + 1); /* send the null byte, too */
 
-return ret;
+  return ret;
 }
 
 /* ---------------------------------------------------------------------

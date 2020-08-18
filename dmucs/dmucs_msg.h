@@ -23,13 +23,7 @@
 
 #include "COSMIC/HDR/sockets.h"
 
-enum dmucs_req_t {
-    HOST_REQ,
-    LOAD_AVERAGE_INFORM,
-    STATUS_INFORM,
-    MONITOR_REQ
-};
-
+enum dmucs_req_t { HOST_REQ, LOAD_AVERAGE_INFORM, STATUS_INFORM, MONITOR_REQ };
 
 /*
  * Format of packets that come in to the dmucs server:
@@ -41,83 +35,79 @@ enum dmucs_req_t {
  * o monistor req:   "monitor <client IP address>"
  */
 
-#include "dmucs_host.h"
 #include "dmucs_dprop.h"
+#include "dmucs_host.h"
 
 class DmucsMsg {
-private:
-protected:
-    struct in_addr clientIp_;
-    DmucsDprop dprop_;
+ private:
+ protected:
+  struct in_addr clientIp_;
+  DmucsDprop dprop_;
 
-    DmucsMsg(struct in_addr clientIp, DmucsDprop dprop) :
-	clientIp_(clientIp), dprop_(dprop) {}
-	
-public:
-    /* Factory Method: parseMsg */
-    static DmucsMsg *parseMsg(Socket *sock, const char *buf);
+  DmucsMsg(struct in_addr clientIp, DmucsDprop dprop)
+      : clientIp_(clientIp), dprop_(dprop) {}
 
-    virtual void handle(Socket *sock, const char *buf) = 0;
-	
-	virtual ~DmucsMsg(){}
+ public:
+  /* Factory Method: parseMsg */
+  static DmucsMsg *parseMsg(Socket *sock, const char *buf);
+
+  virtual void handle(Socket *sock, const char *buf) = 0;
+
+  virtual ~DmucsMsg() {}
 };
 
+class DmucsStatusMsg : public DmucsMsg {
+ private:
+  struct in_addr host_;
+  host_status_t status_;
+  int numCpus_;
+  int powerIndex_;
 
-class DmucsStatusMsg : public DmucsMsg
-{
-private:
-    struct in_addr host_;
-    host_status_t status_;
-    int numCpus_;
-    int powerIndex_;
-
-public:
-    DmucsStatusMsg(struct in_addr clientIp, struct in_addr host,
-		   host_status_t status, DmucsDprop dprop) :
-	DmucsMsg(clientIp, dprop), 
-	host_(host), status_(status), numCpus_(1), powerIndex_(1) {}
-	virtual ~DmucsStatusMsg(){}
-    void handle(Socket *sock, const char *buf);
+ public:
+  DmucsStatusMsg(struct in_addr clientIp, struct in_addr host,
+                 host_status_t status, DmucsDprop dprop)
+      : DmucsMsg(clientIp, dprop),
+        host_(host),
+        status_(status),
+        numCpus_(1),
+        powerIndex_(1) {}
+  virtual ~DmucsStatusMsg() {}
+  void handle(Socket *sock, const char *buf);
 };
 
+class DmucsLdAvgMsg : public DmucsMsg {
+ private:
+  struct in_addr host_;
+  float ldAvg1_, ldAvg5_, ldAvg10_;
 
-class DmucsLdAvgMsg : public DmucsMsg
-{
-private:
-    struct in_addr host_;
-    float ldAvg1_, ldAvg5_, ldAvg10_;
-
-public:
-    DmucsLdAvgMsg(struct in_addr clientIp, struct in_addr host,
-		  float ldavg1, float ldavg5,
-		  float ldavg10, DmucsDprop dprop) :
-	DmucsMsg(clientIp, dprop), 
-	host_(host), ldAvg1_(ldavg1), ldAvg5_(ldavg5), ldAvg10_(ldavg10) {}
-	virtual ~DmucsLdAvgMsg(){}
-    void handle(Socket *sock, const char *buf);
+ public:
+  DmucsLdAvgMsg(struct in_addr clientIp, struct in_addr host, float ldavg1,
+                float ldavg5, float ldavg10, DmucsDprop dprop)
+      : DmucsMsg(clientIp, dprop),
+        host_(host),
+        ldAvg1_(ldavg1),
+        ldAvg5_(ldavg5),
+        ldAvg10_(ldavg10) {}
+  virtual ~DmucsLdAvgMsg() {}
+  void handle(Socket *sock, const char *buf);
 };
 
-
-class DmucsHostReqMsg : public DmucsMsg
-{
-public:
-    DmucsHostReqMsg(struct in_addr clientIp, DmucsDprop dprop) :
-	DmucsMsg(clientIp, dprop) {}
-	virtual ~DmucsHostReqMsg(){}
-    void handle(Socket *sock, const char *buf);
+class DmucsHostReqMsg : public DmucsMsg {
+ public:
+  DmucsHostReqMsg(struct in_addr clientIp, DmucsDprop dprop)
+      : DmucsMsg(clientIp, dprop) {}
+  virtual ~DmucsHostReqMsg() {}
+  void handle(Socket *sock, const char *buf);
 };
 
-
-class DmucsMonitorReqMsg : public DmucsMsg
-{
-public:
-    DmucsMonitorReqMsg(struct in_addr clientIp, DmucsDprop dprop) :
-	DmucsMsg(clientIp, dprop) {};
-	virtual ~DmucsMonitorReqMsg(){}
-    void handle(Socket *sock, const char *buf);
+class DmucsMonitorReqMsg : public DmucsMsg {
+ public:
+  DmucsMonitorReqMsg(struct in_addr clientIp, DmucsDprop dprop)
+      : DmucsMsg(clientIp, dprop){};
+  virtual ~DmucsMonitorReqMsg() {}
+  void handle(Socket *sock, const char *buf);
 };
 
-
-#define BUFSIZE 1024	// largest info we will read from the socket.
+#define BUFSIZE 1024  // largest info we will read from the socket.
 
 #endif

@@ -21,10 +21,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-
 #include "dmucs_host.h"
-
-
 
 /*
  * States of DmucsHosts:
@@ -42,97 +39,90 @@
  *   are not getting any load average messages from it.
  */
 
-class DmucsHostState
-{
-public:
-    virtual void avail(DmucsHost *host) {}
-    virtual void unavail(DmucsHost *host) {}
-    virtual void silent(DmucsHost *host) {}
-    virtual void overloaded(DmucsHost *host) {}
-    virtual void addToDb(DmucsHost *host) {}
-    virtual void removeFromDb(DmucsHost *host) {}
-    virtual const char *dump() { return "Unknown"; }
-    virtual int asInt() { return (int) STATUS_UNKNOWN; }
+class DmucsHostState {
+ public:
+  virtual void avail(DmucsHost *host) {}
+  virtual void unavail(DmucsHost *host) {}
+  virtual void silent(DmucsHost *host) {}
+  virtual void overloaded(DmucsHost *host) {}
+  virtual void addToDb(DmucsHost *host) {}
+  virtual void removeFromDb(DmucsHost *host) {}
+  virtual const char *dump() { return "Unknown"; }
+  virtual int asInt() { return (int)STATUS_UNKNOWN; }
 
-protected:
-    void changeState(DmucsHost *host, DmucsHostState *newState) {
-	host->changeState(newState);
-    }
+ protected:
+  void changeState(DmucsHost *host, DmucsHostState *newState) {
+    host->changeState(newState);
+  }
 };
 
+class DmucsHostStateAvail : public DmucsHostState {
+ public:
+  virtual void unavail(DmucsHost *host);
+  virtual void silent(DmucsHost *host);
+  virtual void overloaded(DmucsHost *host);
+  virtual int asInt() { return (int)STATUS_AVAILABLE; }
+  virtual void addToDb(DmucsHost *host);
+  virtual void removeFromDb(DmucsHost *host);
+  virtual const char *dump() { return "Available"; }
 
-class DmucsHostStateAvail : public DmucsHostState
-{
-public:
-    virtual void unavail(DmucsHost *host);
-    virtual void silent(DmucsHost *host);
-    virtual void overloaded(DmucsHost *host);
-    virtual int asInt() { return (int) STATUS_AVAILABLE; }
-    virtual void addToDb(DmucsHost *host);
-    virtual void removeFromDb(DmucsHost *host);
-    virtual const char *dump() { return "Available"; }
+  static DmucsHostStateAvail *getInstance();
 
-    static DmucsHostStateAvail *getInstance();
+ private:
+  DmucsHostStateAvail() {}
 
-private:
-    DmucsHostStateAvail() {}
-
-    static DmucsHostStateAvail *instance_;
+  static DmucsHostStateAvail *instance_;
 };
 
-class DmucsHostStateUnavail : public DmucsHostState
-{
-public:
-    virtual void avail(DmucsHost *host);
-    virtual int asInt() { return (int) STATUS_UNAVAILABLE; }
-    virtual void addToDb(DmucsHost *host);
-    virtual void removeFromDb(DmucsHost *host);
-    virtual const char *dump() { return "Unavail"; }
+class DmucsHostStateUnavail : public DmucsHostState {
+ public:
+  virtual void avail(DmucsHost *host);
+  virtual int asInt() { return (int)STATUS_UNAVAILABLE; }
+  virtual void addToDb(DmucsHost *host);
+  virtual void removeFromDb(DmucsHost *host);
+  virtual const char *dump() { return "Unavail"; }
 
-    static DmucsHostStateUnavail *getInstance();
+  static DmucsHostStateUnavail *getInstance();
 
-private:
-    DmucsHostStateUnavail() {}
-    
-    static DmucsHostStateUnavail *instance_;
+ private:
+  DmucsHostStateUnavail() {}
+
+  static DmucsHostStateUnavail *instance_;
 };
 
-class DmucsHostStateSilent : public DmucsHostState
-{
-public:
-    virtual void avail(DmucsHost *host);
-    virtual void unavail(DmucsHost *host);
-    virtual int asInt() { return (int) STATUS_SILENT; };
-    virtual void addToDb(DmucsHost *host);
-    virtual void removeFromDb(DmucsHost *host);
-    virtual const char *dump() { return "Silent"; }
+class DmucsHostStateSilent : public DmucsHostState {
+ public:
+  virtual void avail(DmucsHost *host);
+  virtual void unavail(DmucsHost *host);
+  virtual int asInt() { return (int)STATUS_SILENT; };
+  virtual void addToDb(DmucsHost *host);
+  virtual void removeFromDb(DmucsHost *host);
+  virtual const char *dump() { return "Silent"; }
 
-    static DmucsHostStateSilent *getInstance();
+  static DmucsHostStateSilent *getInstance();
 
-private:
-    DmucsHostStateSilent() {}
-    
-    static DmucsHostStateSilent *instance_;
+ private:
+  DmucsHostStateSilent() {}
+
+  static DmucsHostStateSilent *instance_;
 };
 
-class DmucsHostStateOverloaded : public DmucsHostState
-{
-public:
-    virtual void avail(DmucsHost *host);
-    virtual void unavail(DmucsHost *host);
-    virtual void silent(DmucsHost *host);
-    virtual int asInt() { return (int) STATUS_OVERLOADED; }
-    virtual void addToDb(DmucsHost *host);
-    virtual void removeFromDb(DmucsHost *host);
-    virtual const char *dump() { return "Overloaded"; }
+class DmucsHostStateOverloaded : public DmucsHostState {
+ public:
+  virtual void avail(DmucsHost *host);
+  virtual void unavail(DmucsHost *host);
+  virtual void silent(DmucsHost *host);
+  virtual int asInt() { return (int)STATUS_OVERLOADED; }
+  virtual void addToDb(DmucsHost *host);
+  virtual void removeFromDb(DmucsHost *host);
+  virtual const char *dump() { return "Overloaded"; }
 
-    static DmucsHostStateOverloaded *getInstance();
+  static DmucsHostStateOverloaded *getInstance();
 
-private:
-    DmucsHostStateOverloaded() {}
-    
-    static DmucsHostStateOverloaded *instance_;
+ private:
+  DmucsHostStateOverloaded() {}
+
+  static DmucsHostStateOverloaded *instance_;
 };
 
 #endif
-

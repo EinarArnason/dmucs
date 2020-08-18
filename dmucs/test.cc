@@ -1,28 +1,29 @@
 
-/* 
+/*
  * Copyright (c) 1994 - 2002 Marconi Communications, Inc. as an unpublished
  * work.
- * 
+ *
  * All rights reserved.
- * 
- * File: test.cc - 
+ *
+ * File: test.cc -
  */
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <string>
-#include <fstream>
+#include <netinet/in.h>
 #include <stdio.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+
+#include <fstream>
 #include <map>
+#include <string>
 
 struct host_info_t {
-    int numCpus_;
-    int powerIndex_;
-    host_info_t(int numcpus, int pindex) :
-	numCpus_(numcpus), powerIndex_(pindex) {}
+  int numCpus_;
+  int powerIndex_;
+  host_info_t(int numcpus, int pindex)
+      : numCpus_(numcpus), powerIndex_(pindex) {}
 };
 
 typedef std::map<const unsigned int, host_info_t> host_info_db_t;
@@ -33,9 +34,7 @@ host_info_db_t db_;
 #include <iostream>
 #include <sstream>
 
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 #if 0
     std::ifstream instr("/us/norman/hosts-info");
     if (!instr) {
@@ -92,13 +91,12 @@ main(int argc, char *argv[])
     return 0;
 #endif
 
+  std::ostringstream o;
 
-    std::ostringstream o;
+  for (int i = 1; i < argc; i++) {
+    o << argv[i] << " ";
+  }
+  std::cout << o.str() << std::endl;
 
-    for (int i = 1; i < argc; i++) {
-	o << argv[i] << " ";
-    }
-    std::cout << o.str() << std::endl;
-
-    system(o.str().c_str());
+  system(o.str().c_str());
 }

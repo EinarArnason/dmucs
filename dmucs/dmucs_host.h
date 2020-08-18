@@ -21,99 +21,94 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#include <arpa/inet.h>
+#include <netinet/in.h>
 #include <sys/types.h>
 #include <time.h>
+
 #include <exception>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <string>
+
 #include "dmucs_dprop.h"
 
-
 enum host_status_t {
-    STATUS_UNKNOWN = 0,
-    STATUS_AVAILABLE = 1,
-    STATUS_UNAVAILABLE,
-    STATUS_OVERLOADED,
-    STATUS_SILENT
+  STATUS_UNKNOWN = 0,
+  STATUS_AVAILABLE = 1,
+  STATUS_UNAVAILABLE,
+  STATUS_OVERLOADED,
+  STATUS_SILENT
 };
 
 class DmucsHostState;
 
+#define DMUCS_HOST_SILENT_TIME            \
+  60 /* if we don't hear from a host for  \
+        60 seconds, we consider it to be  \
+        silent, and we remove it from the \
+        list of available hosts. */
 
-#define DMUCS_HOST_SILENT_TIME	60	/* if we don't hear from a host for
-					   60 seconds, we consider it to be
-					   silent, and we remove it from the
-					   list of available hosts. */
+class DmucsHost {
+ private:
+  /* dProp_: indicates which kind of host this is.  Users can use
+     Dmucs to maintain collections of multiple types of hosts -- e.g.,
+     hosts that will only compile solaris binaries vs. those that will only
+     compile linux binaries.  Or, hosts that are reserved for certain
+     segments of users vs. hosts that are available to everyone.  We call
+     this user-defined distinction a "distinguishing property" or "dprop"
+     of a host. */
+  DmucsHostState *state_;
+  struct in_addr ipAddr_;
+  DmucsDprop dprop_;
+  std::string resolvedName_;
+  int ncpus_;
+  int pindex_;
+  float ldavg1_, ldavg5_, ldavg10_;
+  time_t lastUpdate_;
 
-class DmucsHost
-{
-private:
-    /* dProp_: indicates which kind of host this is.  Users can use
-       Dmucs to maintain collections of multiple types of hosts -- e.g.,
-       hosts that will only compile solaris binaries vs. those that will only
-       compile linux binaries.  Or, hosts that are reserved for certain
-       segments of users vs. hosts that are available to everyone.  We call
-       this user-defined distinction a "distinguishing property" or "dprop"
-       of a host. */
-    DmucsHostState *	state_;
-    struct in_addr 	ipAddr_;
-    DmucsDprop		dprop_;
-    std::string		resolvedName_;
-    int 		ncpus_;
-    int			pindex_;
-    float		ldavg1_, ldavg5_, ldavg10_;
-    time_t		lastUpdate_;
+  friend class DmucsHostState;
+  void changeState(DmucsHostState *state);
 
-    friend class DmucsHostState;
-    void changeState(DmucsHostState *state);
+ public:
+  DmucsHost(const struct in_addr &ipAddr, DmucsDprop dprop, const int numCpus,
+            const int powerIndex);
 
-public:
-    DmucsHost(const struct in_addr &ipAddr, DmucsDprop dprop,
-	      const int numCpus, const int powerIndex);
+  void updateTier(float ldAvg1, float ldAvg5, float ldAvg10);
 
-    void updateTier(float ldAvg1, float ldAvg5, float ldAvg10);
+  void avail();
+  void unavail();
+  void silent();
+  void overloaded();
 
-    void avail();
-    void unavail();
-    void silent();
-    void overloaded();
+  static DmucsHost *createHost(const struct in_addr &ipAddr,
+                               const DmucsDprop dprop,
+                               const std::string &hostsInfoFile);
 
-    static DmucsHost *createHost(const struct in_addr &ipAddr,
-				  const DmucsDprop dprop,
-				  const std::string &hostsInfoFile);
+  const int getStateAsInt() const;
+  int getTier() const;
+  int calcTier(float ldavg1, float ldavg5, float ldavg10, int pindex) const;
+  const std::string &getName();
+  const DmucsDprop getDprop() const { return dprop_; }
 
-    const int getStateAsInt() const;
-    int getTier() const;
-    int calcTier(float ldavg1, float ldavg5, float ldavg10, int pindex) const;
-    const std::string &getName();
-    const DmucsDprop getDprop() const { return dprop_; }
+  unsigned int getIpAddrInt() const { return ipAddr_.s_addr; }
+  int getNumCpus() const { return ncpus_; }
+  bool seemsDown() const;
+  bool isUnavailable() const;
+  bool isSilent() const;
+  bool isOverloaded() const;
 
-    unsigned int getIpAddrInt() const { return ipAddr_.s_addr; }
-    int getNumCpus() const { return ncpus_; }
-    bool seemsDown() const;
-    bool isUnavailable() const;
-    bool isSilent() const;
-    bool isOverloaded() const;
+  static std::string resolveIp2Name(unsigned int ipAddr, DmucsDprop dprop);
+  static const std::string &getName(std::string &resolvedName,
+                                    const struct in_addr &ipAddr);
 
-    static std::string resolveIp2Name(unsigned int ipAddr, DmucsDprop dprop);
-    static const std::string &getName(std::string &resolvedName,
-				      const struct in_addr &ipAddr);
-
-    void dump();
+  void dump();
 };
 
-
-
-class DmucsNoMoreHosts : public std::exception
-{
-    // TODO
+class DmucsNoMoreHosts : public std::exception {
+  // TODO
 };
 
-class DmucsHostNotFound : public std::exception
-{
-    // TODO
+class DmucsHostNotFound : public std::exception {
+  // TODO
 };
-
 
 #endif

@@ -25,60 +25,55 @@
 #include <string>
 
 #ifdef PKGDATADIR
-const std::string HOSTS_INFO_FILE = std::string(PKGDATADIR) + \
-	std::string("/") + std::string("hosts-info");
+const std::string HOSTS_INFO_FILE =
+    std::string(PKGDATADIR) + std::string("/") + std::string("hosts-info");
 #else
-const std::string HOSTS_INFO_FILE = std::string(getenv("HOME")) + std::string("/.dmucs/hosts-info");
+const std::string HOSTS_INFO_FILE =
+    std::string(getenv("HOME")) + std::string("/.dmucs/hosts-info");
 #endif
 
+class DmucsHostsFile {
+ public:
+  static DmucsHostsFile *getInstance(const std::string &hostsInfoFile);
+  bool getDataForHost(const struct in_addr &ipAddr, int *numCpus,
+                      int *powerIndex) const;
 
-class DmucsHostsFile
-{
-public:
+  /*
+   * This class implements the singleton pattern, as only one instance of
+   * it needs to exist, and it should take care to re-read the hostsfile,
+   * etc., when necessary.
+   */
 
-    static DmucsHostsFile *getInstance(const std::string &hostsInfoFile);
-    bool getDataForHost(const struct in_addr &ipAddr, int *numCpus,
-			int *powerIndex) const;
+ private:
+  // this is private so that it cannot be used (this is a Singleton).
+  DmucsHostsFile(const std::string &hostsInfoFile);
+  ~DmucsHostsFile();
 
-    /*
-     * This class implements the singleton pattern, as only one instance of
-     * it needs to exist, and it should take care to re-read the hostsfile,
-     * etc., when necessary.
-     */
+  struct info_t {
+    int numCpus_;
+    int powerIndex_;
+    info_t(int ncpus, int pindex) : numCpus_(ncpus), powerIndex_(pindex){};
+  };
 
-private:
-    // this is private so that it cannot be used (this is a Singleton).
-    DmucsHostsFile(const std::string &hostsInfoFile);	
-    ~DmucsHostsFile();
+  static DmucsHostsFile *instance_;
+  std::string hostsInfoFile_;
 
-    struct info_t {
-	int numCpus_;
-	int powerIndex_;
-	info_t(int ncpus, int pindex) :
-	    numCpus_(ncpus), powerIndex_(pindex) {};
-    };
+  /*
+   * This maps an IP address (in 32-bit format) to the pair of values:
+   * numCpus and powerIndex.
+   */
+  typedef std::map<unsigned int, info_t> host_info_db_t;
+  typedef host_info_db_t::iterator host_info_db_iter_t;
 
-    static DmucsHostsFile *instance_;
-    std::string hostsInfoFile_;
+  mutable host_info_db_t db_;
+  mutable time_t lastFileChangeTime_;
 
-    /*
-     * This maps an IP address (in 32-bit format) to the pair of values:
-     * numCpus and powerIndex.
-     */
-    typedef std::map<unsigned int, info_t> host_info_db_t;
-    typedef host_info_db_t::iterator host_info_db_iter_t;
+  void readFileIntoDb() const;
 
-    mutable host_info_db_t db_;
-    mutable time_t lastFileChangeTime_;
-
-    void readFileIntoDb() const;
-
-    /* If the file modification time has changed since the last time this
-       was called, then return true AND update lastFileChangeTime_ to the
-       new modification time. */
-    bool hasFileChanged() const;
-
+  /* If the file modification time has changed since the last time this
+     was called, then return true AND update lastFileChangeTime_ to the
+     new modification time. */
+  bool hasFileChanged() const;
 };
 
 #endif
-
